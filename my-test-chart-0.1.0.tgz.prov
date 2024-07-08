@@ -1,0 +1,30 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+annotations:
+  artifacthub.io/signKey: |
+    fingerprint: C3349B2317855727
+    url: https://keybase.io/test/pgp_keys.asc
+apiVersion: v2
+appVersion: 1.16.0
+description: A Helm chart for Kubernetes
+name: my-test-chart
+type: application
+version: 0.1.0
+
+...
+files:
+  my-test-chart-0.1.0.tgz: sha256:12d293554d7af94a2506d449873ef54ecc5c39b2b99e4b1696e3ddefd791d8a7
+-----BEGIN PGP SIGNATURE-----
+
+wsDcBAEBCgAQBQJmi2hDCRDDNJsjF4VXJwAA7sgMAMaeFpaSToJehZ9uwJ71tCqY
+g3Cdlc6KY+4YHJOgSEULT7HSH4lDmc3S9iYZMWyj6gc+qbLUI48aTdL9wITH0U3U
+5E82p/l4XEs7TTaDhOtf6WOVxy3UuErHRxMK7oUabvo7AWEDENsZPJCAaBUqJF17
+IGPPidyBugIP6uNRIfVy+MJTxBzH1J6ZMAgU1S8rH5RhCrHKsIpqihvh3ST95QYw
+qe9Yp20WNdlxjVdqKMjRHpcfmcDHBRec84Qp/z7BZF9xlR1r0d8eZw6kObZpMiGA
+qYC0lrbg2pFBGqs2S3zBl4p1Pe+MSvmbcqgur11qtnsqXOQUy+WENUA9OrwVA78c
+XikoKoleG0tAY2PwJxoVQVqaZF+Z2pB35qwy2ltKPZ1Nu8kI3TATbSuoD2ZMFy1a
+oqeJ4c/YSg2CZvSaxma3BFVpIIw2KZ0dX7nnBUY/Da054roMAuxZ7caS9ebiRk4Y
+7+84kjWqb45Z/ngOExQ77zcG8Km8LHnnWWsaXBb/Ug==
+=7lPt
+-----END PGP SIGNATURE-----
