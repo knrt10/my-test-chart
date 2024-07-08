@@ -3,8 +3,8 @@ entries:
   my-test-chart:
   - annotations:
       artifacthub.io/signKey: |
-        fingerprint: C3349B2317855727
-        url: https://keybase.io/test/pgp_keys.asc
+        fingerprint: E7E8C7A7E111006F7CD4EF44C3349B2317855727
+        url: https://keybase.io/knrt10/pgp_keys.asc
     apiVersion: v2
     appVersion: 1.16.0
     created: "2024-07-08T09:47:18.556406976+05:30"
@@ -13,6 +13,6 @@ entries:
     name: my-test-chart
     type: application
     urls:
-    - https://knrt10.github.io/my-test-chart/my-test-chart-0.1.0.tgz
-    version: 0.1.0
+    - https://knrt10.github.io/my-test-chart/my-test-chart-0.2.0.tgz
+    version: 0.2.0
 generated: "2024-07-08T09:47:18.555874737+05:30"
