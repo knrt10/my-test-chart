@@ -34,34 +34,79 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@5119fcb9089d432beecbf79bb2c7915207344b78 # v3.5
 
-      - name: Prepare GPG key
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.5.0
+        with:
+          cosign-version: 'v2.2.4'
+
+      - name: Install GitHub CLI
+        run: sudo apt-get install -y gh
+      
+      - name: Decode and Set up Cosign Key
         run: |
-          gpg_dir=.cr-gpg
-          mkdir "$gpg_dir"
-
-          # referring keyring to private key of gpg
-          keyring="$gpg_dir/secring.gpg"
-
-          # storing base64 GPG key into keyring 
-          base64 -d <<< "$GPG_KEYRING_BASE64" > "$keyring"
-
-          passphrase_file="$gpg_dir/passphrase"
-
-          # storing passphrase data into a file
-          echo "$GPG_PASSPHRASE" > "$passphrase_file"
-
-          # saving passphrase into github-environment
-          echo "CR_PASSPHRASE_FILE=$passphrase_file" >> "$GITHUB_ENV"
-
-          # saving private key into github-environemnt
-          echo "CR_KEYRING=$keyring" >> "$GITHUB_ENV"
+          mkdir -p .cosign
+          echo "${{ secrets.COSIGN_KEY_BASE64 }}" | base64 -d > .cosign/cosign.key
+          echo "COSIGN_KEY_PATH=.cosign/cosign.key" >> $GITHUB_ENV
+          echo "COSIGN_PASSWORD=${{ secrets.COSIGN_PASSWORD }}" >> $GITHUB_ENV
         env:
-          GPG_KEYRING_BASE64: "${{ secrets.GPG_KEYRING_BASE64 }}" #Referring secrets of github above
-          GPG_PASSPHRASE: "${{ secrets.GPG_PASSPHRASE }}"   
+          COSIGN_KEY_BASE64: ${{ secrets.COSIGN_KEY_BASE64 }}
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+
+      - name: Extract Chart Version and Name
+        id: extract_version
+        run: |
+          CHART_FILE="charts/templates/Chart.yaml"
+          CHART_VERSION=$(grep 'version:' $CHART_FILE | awk '{print $2}')
+          CHART_NAME=$(grep 'name:' $CHART_FILE | awk '{print $2}')
+          echo "CHART_VERSION=$CHART_VERSION" >> $GITHUB_ENV
+          echo "CHART_NAME=$CHART_NAME" >> $GITHUB_ENV
+
+      - name: Package and Signing Helm Charts
+        run: |
+          echo "Packaging Helm Charts"
+          mkdir -p .cr-release-packages
+          helm package charts/* -d .cr-release-packages/
+
+          echo "Signing packages in .cr-release-packages/"
+          for chart_file in .cr-release-packages/*.tgz; do
+            if [ -f "$chart_file" ]; then
+              echo "Signing: $chart_file"
+              cosign sign-blob --key .cosign/cosign.key --output-signature "${chart_file}.sig" "$chart_file" -y
+            else
+              echo "Chart package not found: $chart_file"
+            fi
+          done
+
+      - name: Prepare Helm Chart Repo
+        run: |
+          helm repo index . --url https://knrt10.github.io/my-test-chart/
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@a917fd15b20e8b64b94d9158ad54cd6345335584 # v1.6.0
         env:
           CR_TOKEN: "${{ github.token }}"
-          CR_KEY: "${{ secrets.CR_KEY }}" # Key name used while creating key
-          CR_SIGN: true # set to true to sign images
+          CR_SIGN: false # Let Cosign handle signing
+
+      - name: Upload Signed Files to Release
+        run: |
+          CHART_VERSION=${{ env.CHART_VERSION }}
+          CHART_NAME=${{ env.CHART_NAME }}
+          echo "Uploading ${CHART_NAME}-${CHART_VERSION} to GitHub Release"
+          
+          # Create a GitHub release # List all signature files
+          SIGNATURE_FILES=$(ls .cr-release-packages/*.tgz.sig)
+          
+          # Upload the signature files to the release
+          if [ -n "$SIGNATURE_FILES" ]; then
+            gh release create "${CHART_NAME}-${CHART_VERSION}" \
+              -t "Release $CHART_NAME $CHART_VERSION" \
+              -n "Automated release of $CHART_NAME version $CHART_VERSION with signatures." \
+              $SIGNATURE_FILES
+          else
+            echo "No signature files found to upload."
+          fi
+
+      - name: Clean Up
+        run: |
+          rm -rf .cosign
+          rm -rf .cr-release-packages
