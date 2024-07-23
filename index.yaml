@@ -1,0 +1,18 @@
+apiVersion: v1
+entries:
+  my-test-chart:
+  - annotations:
+      artifacthub.io/signKey: |
+        fingerprint: 8F2ACC1E5E3CFC24E9EB56F330A460AD06BBEDB1
+        url: https://keys.openpgp.org/vks/v1/by-fingerprint/8F2ACC1E5E3CFC24E9EB56F330A460AD06BBEDB1
+    apiVersion: v2
+    appVersion: 1.16.0
+    created: "2024-07-23T07:14:48.427209895Z"
+    description: A Helm chart for Kubernetes
+    digest: ae63a24f755d6f5c31432bd744c0094671456388fdcc04e065a186fa1f5c9894
+    name: my-test-chart
+    type: application
+    urls:
+    - https://github.com/knrt10/my-test-chart/releases/download/my-test-chart-0.1.0/my-test-chart-0.1.0.tgz
+    version: 0.1.0
+generated: "2024-07-23T07:14:48.427216497Z"
